@@ -138,6 +138,101 @@ paths:
         '401':
           $ref: '#/components/responses/Unauthorized'
 
+  # Sleep Record Endpoints
+  /sleep_records:
+    post:
+      tags:
+        - Sleep Records
+      summary: Clock in (start sleep tracking)
+      description: |
+        Records when the user goes to bed. This operation creates a new sleep record with a clock_in time.
+        **Requires authentication**
+      operationId: clockIn
+      security:
+        - bearerAuth: []
+      responses:
+        '201':
+          description: Successfully clocked in
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Clock in successful
+                  sleep_record_id:
+                    type: integer
+                    format: int64
+                    example: 123
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: Bad Request
+                  message:
+                    type: string
+                    example: Already clocked in, must clock out first
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /sleep_records/{id}/clock_out:
+    put:
+      tags:
+        - Sleep Records
+      summary: Clock out (end sleep tracking)
+      description: |
+        Records when the user wakes up. This operation updates an existing sleep record with a clock_out time.
+        **Requires authentication**
+      operationId: clockOut
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          description: Sleep record ID
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: Successfully clocked out
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Clock out successful
+                  duration_minutes:
+                    type: integer
+                    example: 480
+                    description: Sleep duration in minutes
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: Bad Request
+                  message:
+                    type: string
+                    example: Already clocked out or not found
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
 components:
   schemas:
     User:
