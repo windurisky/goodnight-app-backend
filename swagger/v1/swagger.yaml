@@ -33,6 +33,10 @@ tags:
     description: User authentication
   - name: Users
     description: User management operations
+  - name: Sleep Records
+    description: Operations for tracking sleep patterns
+  - name: Follows
+    description: Operations for following/unfollowing users
 
 paths:
   # Health Endpoint
