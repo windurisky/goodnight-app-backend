@@ -233,6 +233,30 @@ paths:
         '404':
           $ref: '#/components/responses/NotFound'
 
+  /followings/sleep_records:
+    get:
+      tags:
+        - Sleep Records
+      summary: Get sleep records of following users
+      description: |
+        Returns sleep records of all users the authenticated user follows, from the previous week,
+        sorted by sleep duration.
+        **Requires authentication**
+      operationId: getFollowingsSleepRecords
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: List of sleep records from followed users
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/SleepRecord'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
 components:
   schemas:
     User:
@@ -253,6 +277,42 @@ components:
           type: string
           format: date-time
           example: '2024-03-09T12:34:56Z'
+
+    SleepRecord:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          example: 123
+        user_id:
+          type: integer
+          format: int64
+          example: 1
+        clock_in_at:
+          type: string
+          format: date-time
+          example: '2024-03-09T22:30:00Z'
+        clock_out_at:
+          type: string
+          format: date-time
+          nullable: true
+          example: '2024-03-10T07:15:00Z'
+        duration_minutes:
+          type: integer
+          nullable: true
+          example: 525
+          description: Sleep duration in minutes (calculated when clocked out)
+        created_at:
+          type: string
+          format: date-time
+          example: '2024-03-09T22:30:00Z'
+        updated_at:
+          type: string
+          format: date-time
+          example: '2024-03-10T07:15:00Z'
+        user:
+          $ref: '#/components/schemas/User'
 
   responses:
     Unauthorized:
