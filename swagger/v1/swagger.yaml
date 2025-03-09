@@ -80,11 +80,11 @@ paths:
               properties:
                 username:
                   type: string
-                  example: johndoe
+                  example: windu_risky
                 password:
                   type: string
                   format: password
-                  example: password123
+                  example: password
               required:
                 - username
                 - password
@@ -134,32 +134,60 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  username:
-                    type: string
-                    example: johndoe
-                  name:
-                    type: string
-                    example: John Doe
-                  created_at:
-                    type: string
-                    format: date-time
-                    example: '2024-03-09T12:34:56Z'
+                $ref: '#/components/schemas/User'
         '401':
-          description: Authentication failed
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  error:
-                    type: string
-                    example: Unauthorized
-                  message:
-                    type: string
-                    example: Invalid or missing authentication token
+          $ref: '#/components/responses/Unauthorized'
+
 components:
+  schemas:
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          example: 1
+        name:
+          type: string
+          example: John Doe
+        created_at:
+          type: string
+          format: date-time
+          example: '2024-03-09T12:34:56Z'
+        updated_at:
+          type: string
+          format: date-time
+          example: '2024-03-09T12:34:56Z'
+
+  responses:
+    Unauthorized:
+      description: Authentication failed
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+                example: Unauthorized
+              message:
+                type: string
+                example: Invalid or missing authentication token
+
+    NotFound:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+                example: Not Found
+              message:
+                type: string
+                example: The requested resource could not be found
+
   securitySchemes:
     bearerAuth:
       type: http
