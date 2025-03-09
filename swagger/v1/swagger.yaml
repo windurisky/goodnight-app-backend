@@ -1,8 +1,8 @@
 openapi: 3.0.1
 info:
-  title: Rails API v1
+  title: Goodnight App API v1 - Your Friendly Sleep Tracker
   description: |
-    API documentation for Rails 7.2 application.
+    API documentation for Rails 7.2 Goodnight application.
 
     ## Authentication
     To use protected endpoints, you need to:
@@ -10,6 +10,10 @@ info:
     2. Click the "Authorize" button at the top right
     3. Enter your token in the format: `Bearer your_token_here`
     4. Click "Authorize" to apply the token to all secured endpoints
+
+    ## About Goodnight App
+    This application allows users to track their sleep patterns, follow other users,
+    and view sleep records of users they follow.
   version: '1.0'
   # contact:
   #   name: API Support
@@ -164,7 +168,7 @@ paths:
                   sleep_record_id:
                     type: integer
                     format: int64
-                    example: 123
+                    example: "01890a5c-5a89-710d-b40a-e482c48efd20"
         '400':
           description: Bad request
           content:
@@ -198,8 +202,9 @@ paths:
           description: Sleep record ID
           required: true
           schema:
-            type: integer
-            format: int64
+            type: string
+            format: uuid
+
       responses:
         '200':
           description: Successfully clocked out
@@ -233,7 +238,7 @@ paths:
         '404':
           $ref: '#/components/responses/NotFound'
 
-  /followings/sleep_records:
+  /friends/sleep_records:
     get:
       tags:
         - Sleep Records
@@ -307,7 +312,7 @@ paths:
           $ref: '#/components/responses/Unauthorized'
         '404':
           $ref: '#/components/responses/NotFound'
-  
+
   /follows/{id}:
     delete:
       tags:
@@ -325,8 +330,8 @@ paths:
           description: ID of the user to unfollow
           required: true
           schema:
-            type: integer
-            format: int64
+            type: string
+            format: uuid
       responses:
         '200':
           description: Successfully unfollowed user
@@ -343,15 +348,18 @@ paths:
         '404':
           $ref: '#/components/responses/NotFound'
 
+
+
 components:
   schemas:
     User:
       type: object
       properties:
         id:
-          type: integer
-          format: int64
-          example: 1
+          type: string
+          format: uuid
+
+          example: "01890a5c-10ae-7269-83f5-5df0d634f7c1"
         name:
           type: string
           example: John Doe
@@ -368,9 +376,9 @@ components:
       type: object
       properties:
         id:
-          type: integer
-          format: int64
-          example: 123
+          type: string
+          format: uuid
+          example: "123e4567-e89b-12d3-a456-426614174000"
         user_id:
           type: integer
           format: int64
@@ -404,18 +412,20 @@ components:
       type: object
       properties:
         id:
-          type: integer
-          format: int64
-          example: 42
+          type: string
+          format: uuid
+
+          example: "01890a5c-38a0-72df-9d61-70a572135bc2"
         follower_id:
           type: integer
           format: int64
           example: 1
           description: ID of the user who is following
         followed_id:
-          type: integer
-          format: int64
-          example: 2
+          type: string
+          format: uuid
+
+          example: "01890a5c-6c88-7aa1-ab52-e7dd14fd8129"
           description: ID of the user being followed
         created_at:
           type: string
