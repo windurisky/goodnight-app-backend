@@ -166,8 +166,8 @@ paths:
                     type: string
                     example: Clock in successful
                   sleep_record_id:
-                    type: integer
-                    format: int64
+                    type: string
+                    format: uuid
                     example: "01890a5c-5a89-710d-b40a-e482c48efd20"
         '400':
           description: Bad request
@@ -282,9 +282,9 @@ paths:
               type: object
               properties:
                 followed_id:
-                  type: integer
-                  format: int64
-                  example: 42
+                  type: string
+                  format: uuid
+                  example: "01957d76-6a68-7758-92f3-32471ab29999"
                   description: The ID of the user to follow
               required:
                 - followed_id
@@ -358,7 +358,6 @@ components:
         id:
           type: string
           format: uuid
-
           example: "01890a5c-10ae-7269-83f5-5df0d634f7c1"
         name:
           type: string
@@ -380,9 +379,9 @@ components:
           format: uuid
           example: "123e4567-e89b-12d3-a456-426614174000"
         user_id:
-          type: integer
-          format: int64
-          example: 1
+          type: string
+          format: uuid
+          example: "01957d76-6a68-7758-92f3-32471ab29999"
         clock_in_at:
           type: string
           format: date-time
@@ -414,17 +413,15 @@ components:
         id:
           type: string
           format: uuid
-
           example: "01890a5c-38a0-72df-9d61-70a572135bc2"
         follower_id:
-          type: integer
-          format: int64
-          example: 1
+          type: string
+          format: uuid
+          example: "01957d76-6a68-7758-92f3-32471ab29970"
           description: ID of the user who is following
         followed_id:
           type: string
           format: uuid
-
           example: "01890a5c-6c88-7aa1-ab52-e7dd14fd8129"
           description: ID of the user being followed
         created_at:
