@@ -146,13 +146,13 @@ paths:
           $ref: '#/components/responses/Unauthorized'
 
   # Sleep Record Endpoints
-  /sleep_records:
+  /sleep_records/clock_in:
     post:
       tags:
         - Sleep Records
       summary: Clock in (start sleep tracking)
       description: |
-        Records when the user goes to bed. This operation creates a new sleep record with a clock_in time.
+        Records when the user goes to bed. This operation creates a new sleep record with a clocked_in time.
         **Requires authentication**
       operationId: clockIn
       security:
@@ -167,7 +167,7 @@ paths:
                 properties:
                   message:
                     type: string
-                    example: Clock in successful
+                    example: "Clock in successful"
                   sleep_record_id:
                     type: string
                     format: uuid
@@ -184,32 +184,24 @@ paths:
                     properties:
                       code:
                         type: string
-                        example: parameter_missing
+                        example: "bad_request"
                       message:
                         type: string
-                        example: Already clocked in, must clock out first
+                        example: "You are already clocked in, must clock out first"
         '401':
           $ref: '#/components/responses/Unauthorized'
 
-  /sleep_records/{id}/clock_out:
-    put:
+  /sleep_records/clock_out:
+    post:
       tags:
         - Sleep Records
       summary: Clock out (end sleep tracking)
       description: |
-        Records when the user wakes up. This operation updates an existing sleep record with a clock_out time.
+        Records when the user wakes up. This operation finds the active sleep record and updates it with a clocked_out time.
         **Requires authentication**
       operationId: clockOut
       security:
         - bearerAuth: []
-      parameters:
-        - name: id
-          in: path
-          description: Sleep record ID
-          required: true
-          schema:
-            type: string
-            format: uuid
       responses:
         '200':
           description: Successfully clocked out
@@ -220,10 +212,10 @@ paths:
                 properties:
                   message:
                     type: string
-                    example: Clock out successful
+                    example: "Clock out successful"
                   duration:
                     type: integer
-                    example: 480
+                    example: 28800
                     description: Sleep duration in seconds
         '400':
           description: Bad request
@@ -237,16 +229,14 @@ paths:
                     properties:
                       code:
                         type: string
-                        example: unprocessable_entity
+                        example: "bad_request"
                       message:
                         type: string
-                        example: Already clocked out or not found
+                        example: "You don't have any active sleep records to clock out"
         '401':
           $ref: '#/components/responses/Unauthorized'
-        '404':
-          $ref: '#/components/responses/NotFound'
 
-  /friends/sleep_records:
+  /sleep_records/followings:
     get:
       tags:
         - Sleep Records
