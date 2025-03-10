@@ -161,7 +161,7 @@ RSpec.describe Api::V1::SleepRecordsController, type: :controller do
         # Check data format
         expect(json_response["data"].first).to include(
           "id" => sleep_record.id,
-          "duration" => 28800,
+          "duration" => 28_800,
           "clocked_in_at" => sleep_record.clocked_in_at.iso8601,
           "clocked_out_at" => sleep_record.clocked_out_at.iso8601
         )
