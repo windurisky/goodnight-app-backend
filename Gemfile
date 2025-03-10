@@ -16,6 +16,8 @@ gem "dotenv-rails"
 gem "hiredis-client"
 # For JWT authentication
 gem "jwt"
+# For pagination
+gem "kaminari"
 # Use an opinionated customizable logging library
 gem "lograge"
 # Use mysql as the database for Active Record
