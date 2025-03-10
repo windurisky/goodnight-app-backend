@@ -22,8 +22,8 @@ module Api
       end
 
       def followings
-        page = params[:page] || 1
-        per_page = params[:per_page] || 10
+        page = (params[:page] || 1).to_i
+        per_page = (params[:per_page] || 10).to_i
 
         sleep_records = Sleeps::GetFollowingsSleepRecordsService.call(
           user: current_user,
