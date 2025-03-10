@@ -15,6 +15,7 @@ Rails.application.routes.draw do
         collection do
           post "clock_in", to: "sleep_records#clock_in"
           post "clock_out", to: "sleep_records#clock_out"
+          get "followings", to: "sleep_records#followings"
         end
       end
 

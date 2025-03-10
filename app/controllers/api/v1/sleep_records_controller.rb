@@ -50,6 +50,7 @@ module Api
             clocked_in_at: sleep_record.clocked_in_at.iso8601,
             clocked_out_at: sleep_record.clocked_out_at.iso8601,
             duration: sleep_record.duration,
+            humanized_duration: ActiveSupport::Duration.build(sleep_record.duration).inspect,
             user: {
               id: sleep_record.user.id,
               username: sleep_record.user.username,
