@@ -14,4 +14,16 @@ User.create!(
   name: "Windu Risky"
 )
 
+User.create!(
+  username: "luke_skywalker",
+  password: "password",
+  name: "Luke Skywalker"
+)
+
+User.create!(
+  username: "darth_vader",
+  password: "password",
+  name: "Darth Vader"
+)
+
 puts "Seeds completed!"
