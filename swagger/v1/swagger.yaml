@@ -274,7 +274,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/SleepRecord'
+                  $ref: '#/components/schemas/PaginatedSleepRecord'
         '401':
           $ref: '#/components/responses/Unauthorized'
 
@@ -416,7 +416,7 @@ components:
           format: date-time
           example: '2024-03-09T12:34:56Z'
 
-    SleepRecord:
+    PaginatedSleepRecord:
       type: object
       properties:
         data:
