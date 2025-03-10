@@ -7,7 +7,7 @@ class User < ApplicationRecord
   has_many :followings, -> { where(follows: { active: true }) }, through: :following_relations, source: :followed
   has_many :followers, -> { where(follows: { active: true }) }, through: :follower_relations, source: :follower
 
-  validates :username, presence: true, uniqueness: true
+  validates :username, presence: true, uniqueness: { case_sensitive: false }
   validates :password, presence: true, on: :create
 
   before_create :generate_uuid_v7
