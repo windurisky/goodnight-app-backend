@@ -1,6 +1,12 @@
 # Goodnight App - Sleep Tracking API
 
-A Ruby on Rails API-only microservice for tracking sleep patterns and following other users' sleep records.
+A Ruby on Rails API-only microservice for tracking sleep patterns and following other users' sleep records, built with scalability in mind and following an API-first design approach.
+
+## Technical Specifications
+- Rails 7.2.1
+- Ruby 3.3.0
+- MySQL 8.0.40
+- Redis 7.0
 
 ## Features
 
@@ -50,11 +56,7 @@ The application is designed with the assumption that it's heavily read-oriented:
 - Includes necessary associated data to minimize N+1 queries
 
 #### Scaling Strategy
-For future growth, the application can scale through:
-1. **Read Replicas**: Direct read queries to replicas while keeping writes on the primary
-2. **Data Partitioning**: Time-based partitioning of historical sleep records
-3. **Caching**: Redis caching for frequently accessed data
-4. **Horizontal Sharding**: User-based sharding for very large deployments
+For future growth, see the detailed [Scaling Strategy](#scaling-strategy) section below which outlines our multi-tier approach inspired by Twitter's timeline architecture.
 
 ## API Endpoints
 
@@ -177,8 +179,112 @@ After generating, the API documentation is available at `/api-docs` once the ser
 - Test endpoints directly from the browser
 - Understand authentication requirements
 
-## Technical Specifications
-- Rails 7.2.1
-- Ruby 3.3.0
-- MySQL 8.0.40
-- Redis 7.0
+## Scaling Strategy
+
+The Goodnight app's architecture is designed to scale efficiently, taking inspiration from Twitter's approach to timeline delivery. The followings sleep records feature closely resembles Twitter's home timeline, where users view content from accounts they follow.
+
+### Current Optimization Techniques
+
+1. **Efficient Queries**
+   - Indexed fields for fast filtering (user_id, state, duration)
+   - Selective includes to prevent N+1 queries
+   - Pagination without COUNT queries for better performance
+
+2. **Data Structure Optimization**
+   - Pre-computed duration values to avoid calculation at read-time
+   - Denormalized user data where appropriate
+   - Soft deletion pattern for follows to maintain history
+
+### Multi-Tier Scaling Approach
+
+#### Tier 1: Database Optimization (Current Stage)
+- Strategic indexing on query patterns
+- Query optimization using EXPLAIN and monitoring
+- Connection pooling to efficiently manage database connections
+- Database parameter tuning for read-heavy workloads
+
+#### Tier 2: Read Replicas & Caching (1M+ Users)
+- **Read Replicas**
+  - Direct read-only queries to replicas
+  - Keep writes on primary database
+  - Use replicas for followings sleep records queries
+  - Configure connection pools to distribute load across replicas
+
+- **Redis Caching Layer**
+  - Cache frequently accessed sleep records
+  - Cache user follow relationships
+  - Implement cache invalidation on state changes
+  - Time-based expiry for sleep data
+
+#### Tier 3: Fanout & Service Splitting (10M+ Users)
+- **Fanout on Write Pattern** (Twitter's approach)
+  - When a user clocks out, pre-compute and store the sleep record in followers' timelines
+  - Store timeline data in Redis sorted sets
+  - For users with many followers, process fanout asynchronously via jobs
+  - Significantly reduces read-time complexity
+
+- **Service Decomposition**
+  - Split into independent microservices:
+    - Authentication service
+    - User/Follow service
+    - Sleep record service
+    - Timeline service
+  - Implement API gateway for client requests
+
+#### Tier 4: Sharding & Data Partitioning (100M+ Users)
+- **Horizontal Sharding**
+  - Shard users by ID (consistent hashing)
+  - Co-locate user data with their sleep records
+  - Maintain shard maps in a distributed configuration store
+
+- **Time-Based Partitioning**
+  - Partition sleep records by time periods
+  - Recent data in hot storage
+  - Historical data in cold storage
+  - Automated archiving policies
+
+- **Follow Graph Partitioning**
+  - Partition social graph data
+  - Optimize for read-time social graph traversal
+  - Cache frequently accessed social connections
+
+### Handling Edge Cases
+
+- **Celebrity Problem** (users with many followers)
+  - Separate processing for users with high follower counts
+  - Asynchronous fanout for high-follow accounts
+  - Potential for special caching rules
+
+- **Data Hotspots**
+  - Detect and mitigate hotspots through adaptive sharding
+  - Dynamic cache warming for trending users
+  - Load balancing across read replicas
+
+- **Global Distribution**
+  - Regional database clusters
+  - Data locality based on user geography
+  - CDN for static resources and cached data
+
+### Monitoring & Scaling Triggers
+
+- Key metrics that trigger scaling decisions:
+  - Read/write ratio per database instance
+  - Query latency thresholds
+  - Cache hit/miss rates
+  - Follow graph density changes
+  - Peak vs average loads
+
+- Automated scaling responses:
+  - Add read replicas when read load increases
+  - Increase cache size when hit rates decline
+  - Adjust connection pools when throughput changes
+  - Implement new shards when existing shards exceed capacity thresholds
+
+### Implementation Roadmap
+
+1. **Current Phase**: Focus on query optimization and index tuning
+2. **Next Phase**: Implement Redis caching and read replicas
+3. **Future Phase**: Evaluate fanout approach as user base grows
+4. **Scale Phase**: Implement sharding and partitioning when metrics indicate need
+
+By taking inspiration from Twitter's architecture while adapting to our specific use case of sleep tracking, this scaling strategy provides a clear path from current implementation to supporting hundreds of millions of users.
