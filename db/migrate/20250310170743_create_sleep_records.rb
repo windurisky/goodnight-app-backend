@@ -11,7 +11,7 @@ class CreateSleepRecords < ActiveRecord::Migration[7.2]
       t.timestamps
     end
 
-    add_index :sleep_records, %i[user_id clocked_in_at]
+    add_index :sleep_records, %i[user_id clocked_in_at duration]
     add_index :sleep_records, :state
   end
 end
