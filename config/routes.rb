@@ -11,9 +11,9 @@ Rails.application.routes.draw do
         end
       end
 
-      resources :users do
+      resources :sleep_records do
         collection do
-          get "me", to: "users#me"
+          post "clock_in", to: "sleep_records#clock_in"
         end
       end
 
@@ -21,6 +21,12 @@ Rails.application.routes.draw do
         collection do
           post "follow/:user_id", to: "socials#follow"
           post "unfollow/:user_id", to: "socials#unfollow"
+        end
+      end
+
+      resources :users do
+        collection do
+          get "me", to: "users#me"
         end
       end
     end
