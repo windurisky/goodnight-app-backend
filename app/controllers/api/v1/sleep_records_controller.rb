@@ -34,7 +34,7 @@ module Api
         pagination = {
           page: page,
           per_page: per_page,
-          is_last_page: sleep_records.last_page? || sleep_records.empty?
+          is_last_page: sleep_records.empty? || sleep_records.last_page?
         }
 
         render json: { data: format_sleep_record(sleep_records), pagination: pagination }, status: :ok
