@@ -11,6 +11,15 @@ module Api
           sleep_record_id: sleep_record.id
         }, status: :created
       end
+
+      def clock_out
+        sleep_record = Sleeps::ClockOutService.call(user: current_user)
+
+        render json: {
+          message: "Clock out successful",
+          duration: sleep_record.duration
+        }, status: :ok
+      end
     end
   end
 end
