@@ -191,7 +191,6 @@ The Goodnight app's architecture is designed to scale efficiently, taking inspir
    - Pagination without COUNT queries for better performance
 
 2. **Data Structure Optimization**
-   - Pre-computed duration values to avoid calculation at read-time
    - Denormalized user data where appropriate
    - Soft deletion pattern for follows to maintain history
 
