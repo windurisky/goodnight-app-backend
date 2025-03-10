@@ -9,6 +9,8 @@ RSpec.describe User, type: :model do
   end
 
   describe "validations" do
+    subject { build(:user, username: "unique_username", password: "password123") }
+
     it { is_expected.to validate_presence_of(:username) }
     it { is_expected.to validate_uniqueness_of(:username).case_insensitive }
     it { is_expected.to validate_presence_of(:password).on(:create) }
