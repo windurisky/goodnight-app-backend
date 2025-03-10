@@ -10,6 +10,7 @@ module Api
       rescue_from ActiveRecord::RecordNotFound, with: :render_not_found
       rescue_from ActiveRecord::RecordInvalid, with: :render_unprocessable_entity
       rescue_from JWT::DecodeError, JWT::VerificationError, JWT::ExpiredSignature, with: :render_unauthorized_access
+      rescue_from HandledError, with: :render_handled_error
 
       private
 
@@ -77,6 +78,15 @@ module Api
             message: message
           }
         }, status: :unauthorized
+      end
+
+      def render_handled_error(error)
+        render json: {
+          error: {
+            code: error.code,
+            message: error.message
+          }
+        }, status: error.http_code
       end
 
       def log_error(error)
