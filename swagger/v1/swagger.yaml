@@ -243,11 +243,29 @@ paths:
       summary: Get sleep records of following users
       description: |
         Returns sleep records of all users the authenticated user follows, from the previous week,
-        sorted by sleep duration.
+        sorted by longest sleep duration.
         **Requires authentication**
       operationId: getFollowingsSleepRecords
       security:
         - bearerAuth: []
+      parameters:
+      - name: page
+        in: query
+        description: Page number for pagination (default is 1)
+        required: false
+        schema:
+          type: integer
+          minimum: 1
+          default: 1
+      - name: per_page
+        in: query
+        description: Number of records per page (default is 10)
+        required: false
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 100
+          default: 10
       responses:
         '200':
           description: List of sleep records from followed users
@@ -256,7 +274,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/SleepRecord'
+                  $ref: '#/components/schemas/PaginatedSleepRecord'
         '401':
           $ref: '#/components/responses/Unauthorized'
 
@@ -397,45 +415,50 @@ components:
           type: string
           format: date-time
           example: '2024-03-09T12:34:56Z'
-        updated_at:
-          type: string
-          format: date-time
-          example: '2024-03-09T12:34:56Z'
 
-    SleepRecord:
+    PaginatedSleepRecord:
       type: object
       properties:
-        id:
-          type: string
-          format: uuid
-          example: "123e4567-e89b-12d3-a456-426614174000"
-        user_id:
-          type: string
-          format: uuid
-          example: "01957d76-6a68-7758-92f3-32471ab29999"
-        clock_in_at:
-          type: string
-          format: date-time
-          example: '2024-03-09T22:30:00Z'
-        clock_out_at:
-          type: string
-          format: date-time
-          nullable: true
-          example: '2024-03-10T07:15:00Z'
-        duration:
-          type: integer
-          example: 525
-          description: Sleep duration in seconds (calculated when clocked out)
-        created_at:
-          type: string
-          format: date-time
-          example: '2024-03-09T22:30:00Z'
-        updated_at:
-          type: string
-          format: date-time
-          example: '2024-03-10T07:15:00Z'
-        user:
-          $ref: '#/components/schemas/User'
+        data:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+                format: uuid
+                example: "123e4567-e89b-12d3-a456-426614174000"
+              clock_in_at:
+                type: string
+                format: date-time
+                example: '2024-03-09T22:30:00Z'
+              clock_out_at:
+                type: string
+                format: date-time
+                nullable: true
+                example: '2024-03-10T07:15:00Z'
+              duration:
+                type: integer
+                example: 525
+                description: Sleep duration in seconds (calculated when clocked out)
+              duration:
+                type: string
+                example: 8 minutes and 45 seconds
+                description: Human readable duration with hours, minutes, and seconds
+              user:
+                $ref: '#/components/schemas/User'
+        pagination:
+          type: object
+          properties:
+            page:
+              type: integer
+              example: 1
+            per_page:
+              type: integer
+              example: 10
+            is_last_page:
+              type: boolean
+              example: true
 
   responses:
     Unauthorized:
