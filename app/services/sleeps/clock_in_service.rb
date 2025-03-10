@@ -1,4 +1,4 @@
-module Sleep
+module Sleeps
   class ClockInService < ApplicationService
     def initialize(user:)
       @user = user

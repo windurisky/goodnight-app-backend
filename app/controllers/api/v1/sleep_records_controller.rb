@@ -4,7 +4,7 @@ module Api
       before_action :authenticate_user!
 
       def clock_in
-        sleep_record = Sleep::ClockInService.call(user: current_user)
+        sleep_record = Sleeps::ClockInService.call(user: current_user)
 
         render json: {
           message: "Clock in successful",
