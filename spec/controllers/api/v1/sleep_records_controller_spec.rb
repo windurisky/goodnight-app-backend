@@ -58,4 +58,52 @@ RSpec.describe Api::V1::SleepRecordsController, type: :controller do
       end
     end
   end
+
+  describe "#clock_out" do
+    context "when successful" do
+      it "calls the clock out service and returns success message" do
+        sleep_record = build(:sleep_record, user: user, duration: 28_800, state: "clocked_out")
+
+        expect(Sleeps::ClockOutService).to receive(:call).with(
+          user: user
+        ).and_return(sleep_record)
+
+        post :clock_out
+
+        expect(response).to have_http_status(:ok)
+        json_response = response.parsed_body
+        expect(json_response["message"]).to eq("Clock out successful")
+        expect(json_response["duration"]).to eq(28_800)
+      end
+    end
+
+    context "when not clocked in" do
+      it "returns a bad request error" do
+        expect(Sleeps::ClockOutService).to receive(:call).with(
+          user: user
+        ).and_raise(SleepError::NotClockedIn.new)
+
+        post :clock_out
+
+        expect(response).to have_http_status(:bad_request)
+        json_response = response.parsed_body
+        expect(json_response["error"]["code"]).to eq("not_clocked_in")
+        expect(json_response["error"]["message"]).to eq("You are not clocked in, must clock in first")
+      end
+    end
+
+    context "when not authenticated" do
+      before do
+        request.headers["Authorization"] = nil
+      end
+
+      it "returns an unauthorized error" do
+        post :clock_out
+
+        expect(response).to have_http_status(:unauthorized)
+        json_response = response.parsed_body
+        expect(json_response["error"]["code"]).to eq("unauthorized")
+      end
+    end
+  end
 end
