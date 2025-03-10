@@ -216,10 +216,10 @@ paths:
                   message:
                     type: string
                     example: Clock out successful
-                  duration_minutes:
+                  duration:
                     type: integer
                     example: 480
-                    description: Sleep duration in minutes
+                    description: Sleep duration in seconds
         '400':
           description: Bad request
           content:
@@ -391,11 +391,10 @@ components:
           format: date-time
           nullable: true
           example: '2024-03-10T07:15:00Z'
-        duration_minutes:
+        duration:
           type: integer
-          nullable: true
           example: 525
-          description: Sleep duration in minutes (calculated when clocked out)
+          description: Sleep duration in seconds (calculated when clocked out)
         created_at:
           type: string
           format: date-time
