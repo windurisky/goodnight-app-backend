@@ -67,4 +67,7 @@ RSpec/PendingWithoutReason:
   Enabled: false
 
 RSpec/ExampleLength:
-  Max: 15
+  Max: 40
+
+RSpec/NestedGroups:
+  Max: 5
