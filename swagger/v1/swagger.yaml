@@ -441,6 +441,10 @@ components:
                 type: integer
                 example: 525
                 description: Sleep duration in seconds (calculated when clocked out)
+              duration:
+                type: string
+                example: 8 minutes and 45 seconds
+                description: Human readable duration with hours, minutes, and seconds
               user:
                 $ref: '#/components/schemas/User'
         pagination:
