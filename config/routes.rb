@@ -1,10 +1,8 @@
 Rails.application.routes.draw do
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
 
-  # API versioning
   namespace :api do
     namespace :v1 do
-      # Add your API endpoints here
       resources :health, only: %i[index]
 
       resources :auth do
@@ -16,6 +14,13 @@ Rails.application.routes.draw do
       resources :users do
         collection do
           get "me", to: "users#me"
+        end
+      end
+
+      resources :socials do
+        collection do
+          post "follow/:user_id", to: "socials#follow"
+          post "unfollow/:user_id", to: "socials#unfollow"
         end
       end
     end

@@ -39,7 +39,7 @@ tags:
     description: User management operations
   - name: Sleep Records
     description: Operations for tracking sleep patterns
-  - name: Follows
+  - name: Socials
     description: Operations for following/unfollowing users
 
 paths:
@@ -114,11 +114,14 @@ paths:
                 type: object
                 properties:
                   error:
-                    type: string
-                    example: Unauthorized
-                  message:
-                    type: string
-                    example: Invalid username or password
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                        example: unauthorized
+                      message:
+                        type: string
+                        example: Invalid username or password
 
   # User Endpoints
   /users/me:
@@ -177,11 +180,14 @@ paths:
                 type: object
                 properties:
                   error:
-                    type: string
-                    example: Bad Request
-                  message:
-                    type: string
-                    example: Already clocked in, must clock out first
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                        example: parameter_missing
+                      message:
+                        type: string
+                        example: Already clocked in, must clock out first
         '401':
           $ref: '#/components/responses/Unauthorized'
 
@@ -204,7 +210,6 @@ paths:
           schema:
             type: string
             format: uuid
-
       responses:
         '200':
           description: Successfully clocked out
@@ -228,11 +233,14 @@ paths:
                 type: object
                 properties:
                   error:
-                    type: string
-                    example: Bad Request
-                  message:
-                    type: string
-                    example: Already clocked out or not found
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                        example: unprocessable_entity
+                      message:
+                        type: string
+                        example: Already clocked out or not found
         '401':
           $ref: '#/components/responses/Unauthorized'
         '404':
@@ -262,11 +270,11 @@ paths:
         '401':
           $ref: '#/components/responses/Unauthorized'
 
-  # Follow Endpoints
-  /follows:
+  # Social Endpoints
+  /socials/follow/{user_id}:
     post:
       tags:
-        - Follows
+        - Socials
       summary: Follow a user
       description: |
         Start following another user.
@@ -274,27 +282,26 @@ paths:
       operationId: followUser
       security:
         - bearerAuth: []
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                followed_id:
-                  type: string
-                  format: uuid
-                  example: "01957d76-6a68-7758-92f3-32471ab29999"
-                  description: The ID of the user to follow
-              required:
-                - followed_id
+      parameters:
+        - name: user_id
+          in: path
+          description: ID of the user to follow
+          required: true
+          schema:
+            type: string
+            format: uuid
+            example: "01957d76-6a68-7758-92f3-32471ab29999"
       responses:
         '201':
           description: Successfully followed user
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Follow'
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Successfully followed user"
         '400':
           description: Bad request
           content:
@@ -303,20 +310,39 @@ paths:
                 type: object
                 properties:
                   error:
-                    type: string
-                    example: Bad Request
-                  message:
-                    type: string
-                    example: Already following this user
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                        example: bad_request
+                      message:
+                        type: string
+                        example: You cannot follow yourself
         '401':
           $ref: '#/components/responses/Unauthorized'
         '404':
           $ref: '#/components/responses/NotFound'
+        '422':
+          description: Unprocessable Entity
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                        example: unprocessable_entity
+                      message:
+                        type: string
+                        example: You have already followed the user
 
-  /follows/{id}:
-    delete:
+  /socials/unfollow/{user_id}:
+    post:
       tags:
-        - Follows
+        - Socials
       summary: Unfollow a user
       description: |
         Stop following a user.
@@ -325,13 +351,14 @@ paths:
       security:
         - bearerAuth: []
       parameters:
-        - name: id
+        - name: user_id
           in: path
           description: ID of the user to unfollow
           required: true
           schema:
             type: string
             format: uuid
+            example: "01957d76-6a68-7758-92f3-32471ab29999"
       responses:
         '200':
           description: Successfully unfollowed user
@@ -342,13 +369,27 @@ paths:
                 properties:
                   message:
                     type: string
-                    example: Successfully unfollowed user
+                    example: "Successfully unfollowed user"
         '401':
           $ref: '#/components/responses/Unauthorized'
         '404':
           $ref: '#/components/responses/NotFound'
-
-
+        '422':
+          description: Unprocessable Entity
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                        example: unprocessable_entity
+                      message:
+                        type: string
+                        example: You have already unfollowed the user
 
 components:
   schemas:
@@ -359,9 +400,9 @@ components:
           type: string
           format: uuid
           example: "01890a5c-10ae-7269-83f5-5df0d634f7c1"
-        name:
+        username:
           type: string
-          example: John Doe
+          example: windu_risky
         created_at:
           type: string
           format: date-time
@@ -406,32 +447,6 @@ components:
         user:
           $ref: '#/components/schemas/User'
 
-    Follow:
-      type: object
-      properties:
-        id:
-          type: string
-          format: uuid
-          example: "01890a5c-38a0-72df-9d61-70a572135bc2"
-        follower_id:
-          type: string
-          format: uuid
-          example: "01957d76-6a68-7758-92f3-32471ab29970"
-          description: ID of the user who is following
-        followed_id:
-          type: string
-          format: uuid
-          example: "01890a5c-6c88-7aa1-ab52-e7dd14fd8129"
-          description: ID of the user being followed
-        created_at:
-          type: string
-          format: date-time
-          example: '2024-03-09T12:34:56Z'
-        updated_at:
-          type: string
-          format: date-time
-          example: '2024-03-09T12:34:56Z'
-
   responses:
     Unauthorized:
       description: Authentication failed
@@ -441,11 +456,14 @@ components:
             type: object
             properties:
               error:
-                type: string
-                example: Unauthorized
-              message:
-                type: string
-                example: Invalid or missing authentication token
+                type: object
+                properties:
+                  code:
+                    type: string
+                    example: unauthorized
+                  message:
+                    type: string
+                    example: Invalid or missing authentication token
 
     NotFound:
       description: Resource not found
@@ -455,11 +473,14 @@ components:
             type: object
             properties:
               error:
-                type: string
-                example: Not Found
-              message:
-                type: string
-                example: The requested resource could not be found
+                type: object
+                properties:
+                  code:
+                    type: string
+                    example: not_found
+                  message:
+                    type: string
+                    example: The requested resource could not be found
 
   securitySchemes:
     bearerAuth:

@@ -42,9 +42,16 @@ Metrics/BlockLength:
 Rails/FilePath:
   EnforcedStyle: arguments
 
+Rails/HasManyOrHasOneDependent:
+  Enabled: false
+
 # Layout configurations
 Layout/SpaceInsideArrayLiteralBrackets:
   EnforcedStyle: no_space
+
+# Lint configurations
+Lint/MissingSuper:
+  Enabled: false
 
 # RSpec configurations
 RSpec/MessageSpies:

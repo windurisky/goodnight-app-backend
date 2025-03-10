@@ -276,6 +276,8 @@ GEM
       rspec-mocks (~> 3.13)
       rspec-support (~> 3.13)
     rspec-support (3.13.2)
+    rspec-uuid (0.6.0)
+      rspec-expectations (>= 3)
     rswag (2.16.0)
       rswag-api (= 2.16.0)
       rswag-specs (= 2.16.0)
@@ -324,6 +326,8 @@ GEM
       sorbet-runtime (>= 0.5.10782)
     ruby-progressbar (1.13.0)
     securerandom (0.4.1)
+    shoulda-matchers (6.4.0)
+      activesupport (>= 5.2.0)
     sidekiq (7.2.0)
       concurrent-ruby (< 2)
       connection_pool (>= 2.3.0)
@@ -406,12 +410,14 @@ DEPENDENCIES
   rails (~> 7.2.1)
   redis-client (~> 0.24.0)
   rspec-rails
+  rspec-uuid
   rswag
   rubocop
   rubocop-performance
   rubocop-rails
   rubocop-rspec
   ruby-lsp
+  shoulda-matchers
   sidekiq (>= 7.1)
   simplecov
   solargraph

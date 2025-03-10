@@ -3,6 +3,8 @@ module Api
     class BaseController < ApplicationController
       include ActionController::MimeResponds
 
+      attr_reader :current_user
+
       before_action :set_default_format
 
       rescue_from StandardError, with: :render_internal_server_error
@@ -27,8 +29,6 @@ module Api
 
         render_unauthorized_access unless @current_user
       end
-
-      attr_reader :current_user
 
       def render_not_found(error)
         render json: {
