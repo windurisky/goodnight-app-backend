@@ -49,6 +49,10 @@ Rails/HasManyOrHasOneDependent:
 Layout/SpaceInsideArrayLiteralBrackets:
   EnforcedStyle: no_space
 
+# Lint configurations
+Lint/MissingSuper:
+  Enabled: false
+
 # RSpec configurations
 RSpec/MessageSpies:
   EnforcedStyle: receive
