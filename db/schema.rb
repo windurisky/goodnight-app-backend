@@ -32,7 +32,6 @@ ActiveRecord::Schema[7.2].define(version: 2025_03_10_170743) do
     t.datetime "updated_at", null: false
     t.index ["state"], name: "index_sleep_records_on_state"
     t.index ["user_id", "clocked_in_at"], name: "index_sleep_records_on_user_id_and_clocked_in_at"
-    t.index ["user_id"], name: "index_sleep_records_on_user_id"
   end
 
   create_table "users", id: { type: :string, limit: 36 }, charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
