@@ -24,14 +24,14 @@ ActiveRecord::Schema[7.2].define(version: 2025_03_10_170743) do
 
   create_table "sleep_records", id: { type: :string, limit: 36 }, charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.string "user_id", null: false
-    t.datetime "clock_in_at", null: false
-    t.datetime "clock_out_at"
+    t.datetime "clocked_in_at", null: false
+    t.datetime "clocked_out_at"
     t.integer "duration", default: 0, null: false
     t.string "state", default: "clocked_in", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["state"], name: "index_sleep_records_on_state"
-    t.index ["user_id", "clock_in_at"], name: "index_sleep_records_on_user_id_and_clock_in_at"
+    t.index ["user_id", "clocked_in_at"], name: "index_sleep_records_on_user_id_and_clocked_in_at"
     t.index ["user_id"], name: "index_sleep_records_on_user_id"
   end
 
