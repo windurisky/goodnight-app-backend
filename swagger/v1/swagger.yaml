@@ -232,7 +232,7 @@ paths:
                         example: "bad_request"
                       message:
                         type: string
-                        example: "You don't have any active sleep records to clock out"
+                        example: "You are not clocked in, must clock in first"
         '401':
           $ref: '#/components/responses/Unauthorized'
 

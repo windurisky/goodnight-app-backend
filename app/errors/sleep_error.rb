@@ -5,9 +5,9 @@ module SleepError
     end
   end
 
-  class AlreadyClockedOut < HandledError
+  class NotClockedIn < HandledError
     def initialize
-      super("You are already clocked out, must clock in first", :bad_request, "already_clocked_out")
+      super("You are not clocked in, must clock in first", :bad_request, "not_clocked_in")
     end
   end
 end
