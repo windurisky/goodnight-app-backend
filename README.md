@@ -28,7 +28,7 @@ A Ruby on Rails API-only microservice for tracking sleep patterns and following 
 
 ## Technical Architecture
 
-### Design Patterns
+### Design Highlights
 - **Service Objects**: Clean separation of business logic using `ApplicationService` pattern
 - **State Machine**: AASM for sleep record state management (clocked_in/clocked_out)
 - **Custom Error Handling**: Standardized error responses with `HandledError` classes
@@ -56,7 +56,7 @@ The application is designed with the assumption that it's heavily read-oriented:
 - Includes necessary associated data to minimize N+1 queries
 
 #### Scaling Strategy
-For future growth, see the detailed [Scaling Strategy](#scaling-strategy) section below which outlines our multi-tier approach inspired by Twitter's timeline architecture.
+For future growth, see the detailed [Scaling Strategy](#scaling-strategy) section below which outlines the scalable multi-tier approach inspired by Twitter's timeline architecture.
 
 ## API Endpoints
 
@@ -191,7 +191,7 @@ The Goodnight app's architecture is designed to scale efficiently, taking inspir
    - Pagination without COUNT queries for better performance
 
 2. **Data Structure Optimization**
-   - Denormalized user data where appropriate
+   - Denormalized user data where appropriate, e.g.: sleep duration is pre-computed and stored in a field
    - Soft deletion pattern for follows to maintain history
 
 ### Multi-Tier Scaling Approach
@@ -286,4 +286,4 @@ The Goodnight app's architecture is designed to scale efficiently, taking inspir
 3. **Future Phase**: Evaluate fanout approach as user base grows
 4. **Scale Phase**: Implement sharding and partitioning when metrics indicate need
 
-By taking inspiration from Twitter's architecture while adapting to our specific use case of sleep tracking, this scaling strategy provides a clear path from current implementation to supporting hundreds of millions of users.
+By taking inspiration from Twitter's architecture while adapting to the specific use case of sleep tracking, this scaling strategy provides a clear path from current implementation to supporting hundreds of millions of users.
