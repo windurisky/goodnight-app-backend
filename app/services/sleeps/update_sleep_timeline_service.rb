@@ -15,9 +15,12 @@ module Sleeps
     def set_cache_data
       return if Time.current > data_expiry_time
 
-      user = sleep_record.user
+      set_sorted_set_cache
+      set_hash_cache
+    end
+
+    def set_sorted_set_cache
       leaderboard_cache_key = "sleep_records_by_user_id:#{user.id}"
-      sleep_record_hash_key = "sleep_record_by_id:#{sleep_record.id}"
 
       # Store in Redis sorted set (sorted by duration)
       RedisService.add_to_sorted_set(
@@ -25,6 +28,11 @@ module Sleeps
         sleep_record.duration,
         "#{sleep_record.id}:#{data_expiry_time.to_i}"
       )
+    end
+
+    def set_hash_cache
+      user = sleep_record.user
+      sleep_record_hash_key = "sleep_record_by_id:#{sleep_record.id}"
 
       # Store detailed metadata in Redis Hash
       RedisService.set_hash_field(sleep_record_hash_key, "user_id", user.id)
