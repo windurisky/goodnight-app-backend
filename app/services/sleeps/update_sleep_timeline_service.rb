@@ -7,14 +7,14 @@ module Sleeps
     def call
       validate!
 
+      return if ttl_seconds <= 0
+
       set_cache_data
     end
 
     private
 
     def set_cache_data
-      return if Time.current > data_expiry_time
-
       set_sorted_set_cache
       set_hash_cache
     end
@@ -42,11 +42,15 @@ module Sleeps
       RedisService.set_hash_field(sleep_record_hash_key, "duration", sleep_record.duration)
 
       # Auto-expire the hash in 7 days
-      RedisService.expire("sleep_record:#{sleep_record.id}", data_expiry_time.to_i)
+      RedisService.expire(sleep_record_hash_key, ttl_seconds)
     end
 
     def data_expiry_time
       sleep_record.clocked_in_at + 7.days
+    end
+
+    def ttl_seconds
+      (data_expiry_time - Time.current).to_i
     end
 
     def sleep_record
