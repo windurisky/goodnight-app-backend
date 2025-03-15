@@ -20,7 +20,7 @@ module Sleeps
     end
 
     def set_sorted_set_cache
-      leaderboard_cache_key = "sleep_records_by_user_id:#{user.id}"
+      leaderboard_cache_key = "sleep_records_by_user_id:#{sleep_record.user.id}"
 
       # Store in Redis sorted set (sorted by duration)
       RedisService.add_to_sorted_set(
@@ -31,12 +31,11 @@ module Sleeps
     end
 
     def set_hash_cache
-      user = sleep_record.user
       sleep_record_hash_key = "sleep_record_by_id:#{sleep_record.id}"
 
       # Store detailed metadata in Redis Hash
-      RedisService.set_hash_field(sleep_record_hash_key, "user_id", user.id)
-      RedisService.set_hash_field(sleep_record_hash_key, "username", user.username)
+      RedisService.set_hash_field(sleep_record_hash_key, "user_id", sleep_record.user.id)
+      RedisService.set_hash_field(sleep_record_hash_key, "username", sleep_record.user.username)
       RedisService.set_hash_field(sleep_record_hash_key, "clocked_in_at", sleep_record.clocked_in_at.iso8601)
       RedisService.set_hash_field(sleep_record_hash_key, "clocked_out_at", sleep_record.clocked_out_at.iso8601)
       RedisService.set_hash_field(sleep_record_hash_key, "duration", sleep_record.duration)
