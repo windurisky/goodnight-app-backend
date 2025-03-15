@@ -52,6 +52,17 @@ class RedisService
       with_redis { |redis| redis.call("ZRANGE", set_name, start, stop) }
     end
 
+    # Get range from sorted set (highest scores first)
+    def reverse_range_from_sorted_set(set_name, start, stop, with_scores: false)
+      with_redis do |redis|
+        if with_scores
+          redis.call("ZREVRANGE", set_name, start, stop, "WITHSCORES")
+        else
+          redis.call("ZREVRANGE", set_name, start, stop)
+        end
+      end
+    end
+
     # Push to a list
     def push_to_list(list_name, value)
       with_redis { |redis| redis.call("RPUSH", list_name, value) }
