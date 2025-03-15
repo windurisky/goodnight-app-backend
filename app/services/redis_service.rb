@@ -107,5 +107,15 @@ class RedisService
         end
       end
     end
+
+    # Set expiration on any key
+    def expire(key, seconds)
+      with_redis { |redis| redis.call("EXPIRE", key, seconds.to_i) }
+    end
+
+    # Check remaining time to live for a key
+    def ttl(key)
+      with_redis { |redis| redis.call("TTL", key) }
+    end
   end
 end
