@@ -10,4 +10,10 @@ module SleepError
       super("You are not clocked in, must clock in first", :bad_request, "not_clocked_in")
     end
   end
+
+  class NotClockedOut < HandledError
+    def initialize
+      super("You are not clocked out, must clock out first", :bad_request, "not_clocked_out")
+    end
+  end
 end
