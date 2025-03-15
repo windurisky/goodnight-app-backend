@@ -4,13 +4,13 @@ require "connection_pool"
 REDIS_URL = ENV.fetch("REDIS_URL", "redis://127.0.0.1:6379/0")
 
 # Create a Redis connection pool with hiredis driver
-REDIS_POOL = ConnectionPool.new(size: ENV.fetch("REDIS_POOL_SIZE", 5), timeout: ENV.fetch("REDIS_POOL_TIMEOUT", 3)) do
+REDIS_POOL = ConnectionPool.new(size: ENV.fetch("REDIS_POOL_SIZE", 5).to_f, timeout: ENV.fetch("REDIS_POOL_TIMEOUT", 3).to_f) do
   RedisClient.config(
     url: REDIS_URL,
     driver: :hiredis,
-    connect_timeout: ENV.fetch("REDIS_CONNECT_TIMEOUT", 1),
-    read_timeout: ENV.fetch("REDIS_READ_TIMEOUT", 1),
-    write_timeout: ENV.fetch("REDIS_WRITE_TIMEOUT", 1),
+    connect_timeout: ENV.fetch("REDIS_CONNECT_TIMEOUT", 1).to_f,
+    read_timeout: ENV.fetch("REDIS_READ_TIMEOUT", 1).to_f,
+    write_timeout: ENV.fetch("REDIS_WRITE_TIMEOUT", 1).to_f,
     reconnect_attempts: 3
   ).new_client
 end
