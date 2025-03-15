@@ -7,14 +7,10 @@ module Sleeps
     end
 
     def call
-      following_ids = @user.followings.pluck(:id)
-
-      return [] if following_ids.empty?
-
       SleepRecord
         .clocked_out
         .last_week
-        .where(user_id: following_ids)
+        .where(user_id: User.where(id: @user.followings.select(:id))) # use subquery to avoid passing large array to where clause
         .includes(:user)
         .order(duration: :desc)
         .page(@page)
