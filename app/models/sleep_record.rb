@@ -14,7 +14,7 @@ class SleepRecord < ApplicationRecord
     state :clocked_in, initial: true
     state :clocked_out
 
-    event :clock_out do
+    event :clock_out, after_commit: :post_clock_out_events do
       transitions from: :clocked_in, to: :clocked_out do
         after do
           self.clocked_out_at = Time.current
@@ -28,5 +28,9 @@ class SleepRecord < ApplicationRecord
 
   def valid_clock_out_time
     errors.add(:clocked_out_at, "must be after the clock in time") if clocked_out_at <= clocked_in_at
+  end
+
+  def post_clock_out_events
+    UpdateSleepTimelineJob.perform_later(id)
   end
 end
