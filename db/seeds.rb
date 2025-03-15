@@ -101,10 +101,12 @@ def generate_ten_million_user_data(num_processes: 6)
   pids.each { |pid| Process.wait(pid) }
 end
 
-puts "your processor = #{Etc.nprocessors} core(s)"
-num_processes = (Etc.nprocessors * 0.8).floor
-puts "you will be using 80% of it: #{num_processes} core(s)"
+# Uncomment the lines below to run 10 millions of user and sleep record seeding
 
-generate_ten_million_user_data(num_processes: num_processes)
+# puts "your processor = #{Etc.nprocessors} core(s)"
+# num_processes = (Etc.nprocessors * 0.8).floor
+# puts "you will be using 80% of it: #{num_processes} core(s)"
+# sleep(3)
+# generate_ten_million_user_data(num_processes: num_processes)
 
 puts "Seeds completed!"
