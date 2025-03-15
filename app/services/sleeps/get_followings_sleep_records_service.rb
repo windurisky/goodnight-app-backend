@@ -10,7 +10,8 @@ module Sleeps
       SleepRecord
         .clocked_out
         .last_week
-        .where(user_id: User.where(id: @user.followings.select(:id))) # use subquery to avoid passing large array to where clause
+        # use subquery to avoid passing large array to where clause
+        .where(user_id: User.where(id: @user.followings.select(:id)))
         .includes(:user)
         .order(duration: :desc)
         .page(@page)
