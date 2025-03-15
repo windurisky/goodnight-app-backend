@@ -19,8 +19,13 @@ default: &default
   port: <%= ENV.fetch("DATABASE_PORT") { 3306 } %>
 
 development:
-  <<: *default
-  database: microservice_development
+  primary:
+    <<: *default
+    database: microservice_development
+  primary_replica:
+    <<: *default
+    database: microservice_development
+    replica: true
 
 # Warning: The database defined as "test" will be erased and
 # re-generated from your development database when you run "rake".
@@ -50,8 +55,16 @@ test:
 # for a full overview on how database connection configuration can be specified.
 #
 production:
-  <<: *default
-  database: microservice_production
-  username: <%= ENV['DATABASE_USERNAME'] %>
-  password: <%= ENV['DATABASE_PASSWORD'] %>
-  host: <%= ENV['DATABASE_HOST'] %>
+  primary:
+    <<: *default
+    database: microservice_production
+    username: <%= ENV['DATABASE_USERNAME'] %>
+    password: <%= ENV['DATABASE_PASSWORD'] %>
+    host: <%= ENV['DATABASE_HOST'] %>
+  primary_replica:
+    <<: *default
+    database: microservice_production_replica
+    username: <%= ENV['DATABASE_REPLICA_USERNAME'] %>
+    password: <%= ENV['DATABASE_REPLICA_PASSWORD'] %>
+    host: <%= ENV['DATABASE_REPLICA_HOST'] %>
+    replica: true
