@@ -63,6 +63,24 @@ class RedisService
       end
     end
 
+    def union_sorted_sets(destination_key, keys, weights: nil, aggregate: :sum)
+      return if keys.blank?
+
+      with_redis do |redis|
+        # only allow valid aggregate types
+        raise ArgumentError, "Invalid aggregate type, must be either :sum, :min, or :max" if %i[sum min max].exclude?(aggregate)
+
+        args = ["ZUNIONSTORE", destination_key, keys.size, *keys]
+        args.concat(["WEIGHTS", *weights]) if weights
+        args.concat(["AGGREGATE", aggregate.to_s.upcase])
+
+        redis.call(*args)
+
+        # Return the resulting key for convenience
+        destination_key
+      end
+    end
+
     # Push to a list
     def push_to_list(list_name, value)
       with_redis { |redis| redis.call("RPUSH", list_name, value) }

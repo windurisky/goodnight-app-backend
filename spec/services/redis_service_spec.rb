@@ -71,6 +71,64 @@ RSpec.describe RedisService do
     end
   end
 
+  describe ".union_sorted_sets" do
+    let(:destination_key) { "union_result" }
+    let(:keys) { ["set1", "set2", "set3"] }
+
+    context "when keys are present" do
+      it "performs ZUNIONSTORE with default sum aggregation" do
+        expect(mock_redis).to receive(:call).with(
+          "ZUNIONSTORE", destination_key, 3, *keys, "AGGREGATE", "SUM"
+        )
+
+        described_class.union_sorted_sets(destination_key, keys)
+      end
+
+      it "performs ZUNIONSTORE with min aggregation" do
+        expect(mock_redis).to receive(:call).with(
+          "ZUNIONSTORE", destination_key, 3, *keys, "AGGREGATE", "MIN"
+        )
+
+        described_class.union_sorted_sets(destination_key, keys, aggregate: :min)
+      end
+
+      it "performs ZUNIONSTORE with max aggregation" do
+        expect(mock_redis).to receive(:call).with(
+          "ZUNIONSTORE", destination_key, 3, *keys, "AGGREGATE", "MAX"
+        )
+
+        described_class.union_sorted_sets(destination_key, keys, aggregate: :max)
+      end
+
+      it "performs ZUNIONSTORE with weights" do
+        weights = [1, 2, 3]
+
+        expect(mock_redis).to receive(:call).with(
+          "ZUNIONSTORE", destination_key, 3, *keys, "WEIGHTS", *weights, "AGGREGATE", "SUM"
+        )
+
+        described_class.union_sorted_sets(destination_key, keys, weights: weights)
+      end
+    end
+
+    context "when keys are empty" do
+      it "returns nil without calling redis" do
+        expect(mock_redis).not_to receive(:call)
+
+        result = described_class.union_sorted_sets(destination_key, [])
+        expect(result).to be_nil
+      end
+    end
+
+    context "when aggregate type is invalid" do
+      it "raises ArgumentError" do
+        expect {
+          described_class.union_sorted_sets(destination_key, keys, aggregate: :invalid)
+        }.to raise_error(ArgumentError, "Invalid aggregate type, must be either :sum, :min, or :max")
+      end
+    end
+  end
+
   describe ".push_to_list and .pop_from_list" do
     it "pushes and pops from a list" do
       expect(mock_redis).to receive(:call).with("RPUSH", "test_list", "value1").and_return(1)
