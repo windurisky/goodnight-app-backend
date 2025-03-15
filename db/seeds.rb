@@ -7,6 +7,8 @@
 #   ["Action", "Comedy", "Drama", "Horror"].each do |genre_name|
 #     MovieGenre.find_or_create_by!(name: genre_name)
 #   end
+require "etc"
+
 
 User.create!(
   username: "windu_risky",
@@ -26,16 +28,23 @@ User.create!(
   name: "Darth Vader"
 )
 
-# Adjust num_processes based on CPU cores
-def generate_ten_millions_user_data(num_processes: 6)
+# Ensure the database connection is closed before forking
+ActiveRecord::Base.connection.disconnect!
+
+def generate_ten_million_user_data(num_processes: 6)
   pids = []
 
-  num_processes.times do
+  num_processes.times do |i|
     pids << fork do
       begin
-        ActiveRecord::Base.connection.reconnect! # Ensure DB connection works in forked process
+        # Reconnect to database inside the child process
+        ActiveRecord::Base.establish_connection
 
-        (10_000_000 / num_processes).times do
+        base_user = User.find_by(username: "windu_risky") # Refetch in each process
+
+        puts "Process #{Process.pid} started (Worker ##{i + 1})"
+
+        (10_000_000 / num_processes).times do |index|
           start = 8.days.ago
 
           user = User.create!(
@@ -45,13 +54,17 @@ def generate_ten_millions_user_data(num_processes: 6)
           )
 
           if rand(2) == 1 && base_user.followings.count < 10_000
-            Socials::FollowService.call(user: base_user, target_user_id: user.id)
+            begin
+              Socials::FollowService.call(user: base_user, target_user_id: user.id)
+            rescue StandardError => e
+              puts "FollowService error: #{e.message}"
+            end
           end
 
           1_000.times do
             break if start > Time.current
 
-            duration = rand(8.hours.to_i)
+            duration = rand(8.hours.to_i).to_i
 
             sleep_record = SleepRecord.create!(
               user: user,
@@ -60,22 +73,27 @@ def generate_ten_millions_user_data(num_processes: 6)
               duration: duration,
               state: :clocked_out
             )
-            UpdateSleepTimelineJob.perform_now(sleep_record.id)
+
+            begin
+              Sleeps::UpdateTimelineService.call(sleep_record_id: sleep_record.id)
+            rescue StandardError => e
+              puts "UpdateTimelineService error: #{e.message}, sleep_record_id: #{sleep_record.id}"
+            end
 
             start += duration
           end
 
-          puts "Created #{user.username} user data"
+          puts "[Process #{Process.pid}] Created user #{user.username} (#{index + 1} in worker ##{i + 1})"
+        rescue StandardError => e
+          puts "[Process #{Process.pid}] Error: #{e.message}"
+          puts e.backtrace.first(5)
         end
-      rescue StandardError => e
-        puts "Process #{Process.pid} encountered an error: #{e.message}"
-        puts e.backtrace.first(5) # Show first 5 lines of error trace
-
       ensure
-        ActiveRecord::Base.connection.close # Close DB connection when done
+        ActiveRecord::Base.connection.close
+        puts "Process #{Process.pid} exiting..."
       end
 
-      exit # Make sure each process exits properly
+      exit
     end
   end
 
@@ -83,6 +101,10 @@ def generate_ten_millions_user_data(num_processes: 6)
   pids.each { |pid| Process.wait(pid) }
 end
 
-generate_ten_millions_user_data
+puts "your processor = #{Etc.nprocessors} core(s)"
+num_processes = (Etc.nprocessors * 0.8).floor
+puts "you will be using 80% of it: #{num_processes} core(s)"
+
+generate_ten_million_user_data(num_processes: num_processes)
 
 puts "Seeds completed!"
