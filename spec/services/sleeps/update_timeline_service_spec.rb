@@ -40,10 +40,14 @@ RSpec.describe Sleeps::UpdateTimelineService do
 
         expect(RedisService).to receive(:set_hash_field).with(sleep_record_hash_key, "user_id", user.id)
         expect(RedisService).to receive(:set_hash_field).with(sleep_record_hash_key, "username", user.username)
-        expect(RedisService).to receive(:set_hash_field).with(sleep_record_hash_key, "clocked_in_at", valid_sleep_record.clocked_in_at.iso8601)
-        expect(RedisService).to receive(:set_hash_field).with(sleep_record_hash_key, "clocked_out_at", valid_sleep_record.clocked_out_at.iso8601)
-        expect(RedisService).to receive(:set_hash_field).with(sleep_record_hash_key, "duration", valid_sleep_record.duration)
-        expect(RedisService).to receive(:expire).with(sleep_record_hash_key, (valid_sleep_record.clocked_in_at + 7.days - Time.current).to_i)
+        expect(RedisService).to receive(:set_hash_field).with(sleep_record_hash_key, "clocked_in_at",
+                                                              valid_sleep_record.clocked_in_at.iso8601)
+        expect(RedisService).to receive(:set_hash_field).with(sleep_record_hash_key, "clocked_out_at",
+                                                              valid_sleep_record.clocked_out_at.iso8601)
+        expect(RedisService).to receive(:set_hash_field).with(sleep_record_hash_key, "duration",
+                                                              valid_sleep_record.duration)
+        expect(RedisService).to receive(:expire).with(sleep_record_hash_key,
+                                                      (valid_sleep_record.clocked_in_at + 7.days - Time.current).to_i)
 
         described_class.call(sleep_record_id: valid_sleep_record.id)
       end
@@ -51,9 +55,9 @@ RSpec.describe Sleeps::UpdateTimelineService do
 
     context "when the sleep record is not clocked out" do
       it "raises a SleepError::NotClockedOut error" do
-        expect {
+        expect do
           described_class.call(sleep_record_id: in_progress_sleep_record.id)
-        }.to raise_error(SleepError::NotClockedOut)
+        end.to raise_error(SleepError::NotClockedOut)
       end
     end
 

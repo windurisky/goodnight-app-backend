@@ -7,7 +7,7 @@ RSpec.describe UpdateSleepTimelineJob, type: :job do
     it "calls UpdateTimelineService with the correct sleep_record_id" do
       expect(Sleeps::UpdateTimelineService).to receive(:call).with(sleep_record_id: sleep_record_id)
 
-      described_class.perform_now(sleep_record_id)      
+      described_class.perform_now(sleep_record_id)
     end
   end
 end

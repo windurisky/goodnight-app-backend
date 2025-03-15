@@ -79,7 +79,7 @@ RSpec.describe RedisService do
       described_class.expire("test_key", 3600)
     end
   end
-  
+
   describe ".ttl" do
     it "returns the remaining time to live for a key" do
       expect(mock_redis).to receive(:call).with("TTL", "test_key").and_return(3598)
