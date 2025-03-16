@@ -6,6 +6,7 @@ RSpec.describe User, type: :model do
     it { is_expected.to have_many(:follower_relations).class_name("Follow").with_foreign_key("followed_id") }
     it { is_expected.to have_many(:followings).through(:following_relations).source(:followed) }
     it { is_expected.to have_many(:followers).through(:follower_relations).source(:follower) }
+    it { is_expected.to have_many(:sleep_records) }
   end
 
   describe "validations" do
@@ -15,6 +16,14 @@ RSpec.describe User, type: :model do
     it { is_expected.to validate_uniqueness_of(:username).case_insensitive }
     it { is_expected.to validate_presence_of(:password).on(:create) }
     it { is_expected.to have_secure_password }
+
+    context "when updating a user" do
+      let(:existing_user) { create(:user, password: "existing_password") }
+
+      it "does not require password to be present" do
+        expect(existing_user.update(username: "new_username")).to be_truthy
+      end
+    end
   end
 
   describe "uuid generation" do
@@ -25,18 +34,72 @@ RSpec.describe User, type: :model do
     end
   end
 
-  describe "following methods" do
+  describe "#following?" do
     let(:first_user) { create(:user) }
     let(:second_user) { create(:user) }
 
-    it "follows another user" do
+    context "when following a user" do
+      before { create(:follow, follower: first_user, followed: second_user) }
+
+      it "returns true" do
+        expect(first_user.following?(second_user)).to be true
+      end
+    end
+
+    context "when not following a user" do
+      it "returns false" do
+        expect(first_user.following?(second_user)).to be false
+      end
+    end
+
+    context "when the follow relationship is inactive" do
+      before { create(:follow, follower: first_user, followed: second_user, active: false) }
+
+      it "returns false" do
+        expect(first_user.following?(second_user)).to be false
+      end
+    end
+  end
+
+  describe "#follower_of?" do
+    let(:first_user) { create(:user) }
+    let(:second_user) { create(:user) }
+
+    context "when followed by another user" do
+      before { create(:follow, follower: first_user, followed: second_user) }
+
+      it "returns true" do
+        expect(first_user.follower_of?(second_user)).to be true
+      end
+    end
+
+    context "when not followed by another user" do
+      it "returns false" do
+        expect(first_user.follower_of?(second_user)).to be false
+      end
+    end
+
+    context "when the follow relationship is inactive" do
+      before { create(:follow, follower: second_user, followed: first_user, active: false) }
+
+      it "returns false" do
+        expect(first_user.follower_of?(second_user)).to be false
+      end
+    end
+  end
+
+  describe "following behavior" do
+    let(:first_user) { create(:user) }
+    let(:second_user) { create(:user) }
+
+    it "allows a user to follow another" do
       create(:follow, follower: first_user, followed: second_user)
 
       expect(first_user.followings).to include(second_user)
       expect(second_user.followers).to include(first_user)
     end
 
-    it "unfollows a user by setting active to false" do
+    it "removes a user from followings when follow is inactive" do
       follow = create(:follow, follower: first_user, followed: second_user)
       follow.update(active: false)
 
@@ -44,7 +107,7 @@ RSpec.describe User, type: :model do
       expect(second_user.followers).not_to include(first_user)
     end
 
-    it "does not include inactive follows" do
+    it "does not list inactive follows" do
       create(:follow, follower: first_user, followed: second_user, active: false)
 
       expect(first_user.followings).not_to include(second_user)
@@ -61,7 +124,7 @@ RSpec.describe User, type: :model do
       expect(user.authenticate(password)).to eq(user)
     end
 
-    it "authentication fails with wrong password" do
+    it "fails authentication with an incorrect password" do
       user = create(:user, password: "correct_password")
 
       expect(user.authenticate("wrong_password")).to be_falsey
