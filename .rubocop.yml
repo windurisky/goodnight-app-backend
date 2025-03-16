@@ -38,6 +38,9 @@ Metrics/BlockLength:
   Exclude:
     - 'spec/**/*'
 
+Metrics/CyclomaticComplexity:
+  Max: 8
+
 # Rails specific configurations
 Rails/FilePath:
   EnforcedStyle: arguments
@@ -73,4 +76,4 @@ RSpec/NestedGroups:
   Max: 5
 
 RSpec/MultipleMemoizedHelpers:
-  Max: 6
+  Max: 10

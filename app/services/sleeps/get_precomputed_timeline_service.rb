@@ -13,9 +13,10 @@ module Sleeps
 
       collected_records = []
       current_index = @start_index
+      end_index = current_index + BATCH_SIZE - 1
 
       while collected_records.size < @per_page
-        batch = fetch_batch(current_index)
+        batch = fetch_batch(current_index, end_index)
         break if batch.empty?
 
         batch.each do |member, duration|
@@ -28,6 +29,11 @@ module Sleeps
 
           current_index += 1
         end
+
+        current_index = end_index + 1
+        end_index = current_index + BATCH_SIZE - 1
+
+        break if stop_collecting_records?(batch.size, current_index)
       end
 
       [collected_records, current_index]
@@ -35,8 +41,11 @@ module Sleeps
 
     private
 
-    def fetch_batch(current_index)
-      end_index = current_index + BATCH_SIZE - 1
+    def stop_collecting_records?(batch_size, current_index)
+      batch_size < BATCH_SIZE || (current_index - @start_index) > 10_000
+    end
+
+    def fetch_batch(current_index, end_index)
       RedisService.reverse_range_from_sorted_set(cache_key, current_index, end_index, with_scores: true)
     end
 
