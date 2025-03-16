@@ -55,6 +55,7 @@ module Sleeps
 
     def process_record(member, duration)
       sleep_record_id, expires_at = member.split(":")
+      # TODO: Queue remove expired sleep records for scalability
       return if expires_at.to_i <= Time.current.to_i
 
       details = RedisService.get_hash_all("sleep_record_by_id:#{sleep_record_id}")
