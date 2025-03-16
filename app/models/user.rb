@@ -18,6 +18,6 @@ class User < ApplicationRecord
   end
 
   def follower_of?(user)
-    follower_relations.find_by(follower_id: user.id)&.active?
+    user.follower_relations.find_by(follower_id: id)&.active?
   end
 end

@@ -24,18 +24,18 @@ class SleepRecord < ApplicationRecord
     end
   end
 
-  private
-
-  def valid_clock_out_time
-    errors.add(:clocked_out_at, "must be after the clock in time") if clocked_out_at <= clocked_in_at
-  end
-
   def visibility_expiry_time
     clocked_in_at + 1.week
   end
 
   def visible?
     Time.current < visibility_expiry_time
+  end
+
+  private
+
+  def valid_clock_out_time
+    errors.add(:clocked_out_at, "must be after the clock in time") if clocked_out_at <= clocked_in_at
   end
 
   def post_clock_out_events
