@@ -62,11 +62,14 @@ module Sleeps
 
       {
         id: sleep_record_id,
-        user_id: details["user_id"],
-        username: details["username"],
         clocked_in_at: details["clocked_in_at"],
         clocked_out_at: details["clocked_out_at"],
-        duration: duration.to_i
+        duration: duration.to_i,
+        humanized_duration: ActiveSupport::Duration.build(duration.to_i).inspect,
+        user: {
+          id: details["user_id"],
+          username: details["username"]
+        }
       }
     end
   end

@@ -71,14 +71,9 @@ def generate_ten_million_user_data(num_processes: 6)
               clocked_in_at: start,
               clocked_out_at: start + duration,
               duration: duration,
-              state: :clocked_out
+              state: :clocked_in
             )
-
-            begin
-              Sleeps::UpdateSelfRecordService.call(sleep_record_id: sleep_record.id)
-            rescue StandardError => e
-              puts "UpdateSelfRecordService error: #{e.message}, sleep_record_id: #{sleep_record.id}"
-            end
+            sleep_record.clock_out!
 
             start += duration
           end

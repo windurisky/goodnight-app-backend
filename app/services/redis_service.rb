@@ -68,7 +68,8 @@ class RedisService
 
       with_redis do |redis|
         # only allow valid aggregate types
-        raise ArgumentError, "Invalid aggregate type, must be either :sum, :min, or :max" if %i[sum min max].exclude?(aggregate)
+        raise ArgumentError, "Invalid aggregate type, must be either :sum, :min, or :max" if %i[sum min
+                                                                                                max].exclude?(aggregate)
 
         args = ["ZUNIONSTORE", destination_key, keys.size, *keys]
         args.concat(["WEIGHTS", *weights]) if weights
@@ -109,9 +110,7 @@ class RedisService
     # Get all hash fields and values
     def get_hash_all(hash_name)
       with_redis do |redis|
-        result = redis.call("HGETALL", hash_name)
-        # Convert flat array to hash: ["key1", "val1", "key2", "val2"] -> {"key1" => "val1", "key2" => "val2"}
-        result.each_slice(2).to_h
+        redis.call("HGETALL", hash_name)
       end
     end
 
