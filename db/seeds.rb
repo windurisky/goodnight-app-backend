@@ -75,9 +75,9 @@ def generate_ten_million_user_data(num_processes: 6)
             )
 
             begin
-              Sleeps::UpdateTimelineService.call(sleep_record_id: sleep_record.id)
+              Sleeps::UpdateSelfRecordService.call(sleep_record_id: sleep_record.id)
             rescue StandardError => e
-              puts "UpdateTimelineService error: #{e.message}, sleep_record_id: #{sleep_record.id}"
+              puts "UpdateSelfRecordService error: #{e.message}, sleep_record_id: #{sleep_record.id}"
             end
 
             start += duration

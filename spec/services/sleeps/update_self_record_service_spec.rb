@@ -1,6 +1,6 @@
 require "rails_helper"
 
-RSpec.describe Sleeps::UpdateTimelineService do
+RSpec.describe Sleeps::UpdateSelfRecordService do
   describe "#call" do
     let(:user) { create(:user) }
     let(:valid_sleep_record) do
@@ -28,9 +28,9 @@ RSpec.describe Sleeps::UpdateTimelineService do
 
     context "when the sleep record is valid" do
       it "stores the sleep record in Redis" do
-        leaderboard_cache_key = "sleep_records_by_user_id:#{user.id}"
+        leaderboard_cache_key = "sleep_records_by_user_id:#{user.id}:#{valid_sleep_record.clocked_in_at.to_date}"
         sleep_record_hash_key = "sleep_record_by_id:#{valid_sleep_record.id}"
-        member_value = "#{valid_sleep_record.id}:#{(valid_sleep_record.clocked_in_at + 7.days).to_i}"
+        member_value = valid_sleep_record.id
 
         expect(RedisService).to receive(:add_to_sorted_set).with(
           leaderboard_cache_key,

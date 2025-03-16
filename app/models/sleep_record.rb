@@ -31,6 +31,6 @@ class SleepRecord < ApplicationRecord
   end
 
   def post_clock_out_events
-    UpdateSleepTimelineJob.perform_later(id)
+    UpdateSelfRecordJob.perform_later(id)
   end
 end
