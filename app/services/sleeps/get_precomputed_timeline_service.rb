@@ -1,5 +1,5 @@
 module Sleeps
-  class GetFollowingsSleepRecordsService < ApplicationService
+  class GetPrecomputedTimelineService < ApplicationService
     BATCH_SIZE = 100
 
     def initialize(user:, start_index: 0, per_page: 10)
