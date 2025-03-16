@@ -77,3 +77,6 @@ RSpec/NestedGroups:
 
 RSpec/MultipleMemoizedHelpers:
   Max: 10
+
+RSpec/LetSetup:
+  Enabled: false
