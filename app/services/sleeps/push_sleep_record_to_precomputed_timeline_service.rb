@@ -8,7 +8,7 @@ module Sleeps
     def call
       validate!
 
-      cache_key = "precomputed_timeline:#{user_id}"
+      cache_key = "precomputed_timeline:#{user.id}"
       member_name = "#{sleep_record.id}:#{sleep_record.visibility_expiry_time.to_i}"
 
       RedisService.add_to_sorted_set(
