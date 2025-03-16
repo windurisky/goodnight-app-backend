@@ -17,11 +17,19 @@ class SleepRecord < ApplicationRecord
     event :clock_out, after_commit: :post_clock_out_events do
       transitions from: :clocked_in, to: :clocked_out do
         after do
-          self.clocked_out_at = Time.current
+          self.clocked_out_at ||= Time.current
           self.duration = (clocked_out_at - clocked_in_at).to_i
         end
       end
     end
+  end
+
+  def visibility_expiry_time
+    clocked_in_at + 1.week
+  end
+
+  def visible?
+    Time.current < visibility_expiry_time
   end
 
   private
@@ -31,6 +39,7 @@ class SleepRecord < ApplicationRecord
   end
 
   def post_clock_out_events
-    UpdateSleepTimelineJob.perform_later(id)
+    UpdateSelfRecordJob.perform_later(id)
+    FanOutSleepRecordToFollowersJob.perform_later(id)
   end
 end

@@ -22,42 +22,22 @@ module Api
       end
 
       def followings
-        page = (params[:page] || 1).to_i
+        start_index = (params[:start_index] || 0).to_i
         per_page = (params[:per_page] || 10).to_i
 
-        sleep_records = Sleeps::GetFollowingsSleepRecordsService.call(
+        sleep_records, last_index = Sleeps::GetPrecomputedTimelineService.call(
           user: current_user,
-          page: page,
+          start_index: start_index,
           per_page: per_page
         )
 
         pagination = {
-          page: page,
+          start_index: start_index,
           per_page: per_page,
-          is_last_page: sleep_records.empty? || sleep_records.last_page?
+          last_index: last_index
         }
 
-        render json: { data: format_sleep_record(sleep_records), pagination: pagination }, status: :ok
-      end
-
-      private
-
-      # TODO: Start using serializer if there are other endpoints that need to be formatted
-      def format_sleep_record(sleep_records)
-        sleep_records.map do |sleep_record|
-          {
-            id: sleep_record.id,
-            clocked_in_at: sleep_record.clocked_in_at.iso8601,
-            clocked_out_at: sleep_record.clocked_out_at.iso8601,
-            duration: sleep_record.duration,
-            humanized_duration: ActiveSupport::Duration.build(sleep_record.duration).inspect,
-            user: {
-              id: sleep_record.user.id,
-              username: sleep_record.user.username,
-              name: sleep_record.user.name
-            }
-          }
-        end
+        render json: { data: sleep_records, pagination: pagination }, status: :ok
       end
     end
   end

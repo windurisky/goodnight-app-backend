@@ -249,14 +249,14 @@ paths:
       security:
         - bearerAuth: []
       parameters:
-      - name: page
+      - name: start_index
         in: query
-        description: Page number for pagination (default is 1)
+        description: Starting index for pagination (default is 0)
         required: false
         schema:
           type: integer
-          minimum: 1
-          default: 1
+          minimum: 0
+          default: 0
       - name: per_page
         in: query
         description: Number of records per page (default is 10)
@@ -446,19 +446,27 @@ components:
                 example: 8 minutes and 45 seconds
                 description: Human readable duration with hours, minutes, and seconds
               user:
-                $ref: '#/components/schemas/User'
+                type: object
+                properties:
+                  id:
+                    type: string
+                    format: uuid
+                    example: "01890a5c-10ae-7269-83f5-5df0d634f7c1"
+                  username:
+                    type: string
+                    example: windu_risky
         pagination:
           type: object
           properties:
-            page:
+            start_index:
               type: integer
-              example: 1
+              example: 0
             per_page:
               type: integer
               example: 10
-            is_last_page:
-              type: boolean
-              example: true
+            last_index:
+              type: integer
+              example: 150
 
   responses:
     Unauthorized:

@@ -12,4 +12,12 @@ class User < ApplicationRecord
   validates :password, presence: true, on: :create
 
   before_create :generate_uuid_v7
+
+  def following?(user)
+    following_relations.find_by(followed_id: user.id)&.active? || false
+  end
+
+  def follower_of?(user)
+    user.follower_relations.find_by(follower_id: id)&.active? || false
+  end
 end

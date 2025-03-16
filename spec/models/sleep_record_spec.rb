@@ -58,7 +58,6 @@ RSpec.describe SleepRecord, type: :model do
 
     describe "last_week" do
       before do
-        # Create records at different times
         create(:sleep_record, user: user, clocked_in_at: 2.days.ago)
         create(:sleep_record, user: user, clocked_in_at: 8.days.ago)
         create(:sleep_record, user: user, clocked_in_at: 10.days.ago)
@@ -94,11 +93,10 @@ RSpec.describe SleepRecord, type: :model do
 
         record.clock_out!
 
-        # Should be approximately 4 hours in seconds (14400), allow 5 second margin for test execution time
         expect(record.duration).to be_within(5).of(4.hours.to_i)
       end
 
-      it "doesn't allow transition back to clocked_in" do
+      it "doesn't allow invalid transition" do
         sleep_record.clock_out!
 
         expect do
@@ -115,6 +113,50 @@ RSpec.describe SleepRecord, type: :model do
       sleep_record = create(:sleep_record, user: user)
       expect(sleep_record.id).to be_present
       expect(sleep_record.id).to be_a_uuid(version: 7)
+    end
+  end
+
+  describe "#visibility_expiry_time" do
+    let(:user) { create(:user) }
+    let(:clocked_in_at) { 3.days.ago }
+    let(:sleep_record) { create(:sleep_record, user: user, clocked_in_at: clocked_in_at) }
+
+    it "returns 7 days after clocked_in_at" do
+      expect(sleep_record.visibility_expiry_time).to eq(clocked_in_at + 7.days)
+    end
+  end
+
+  describe "#visible?" do
+    let(:user) { create(:user) }
+    let(:clocked_in_at) { 3.days.ago }
+    let(:sleep_record) { create(:sleep_record, user: user, clocked_in_at: clocked_in_at) }
+
+    context "when within visibility period" do
+      it "returns true" do
+        expect(sleep_record.visible?).to be true
+      end
+    end
+
+    context "when past visibility period" do
+      before { travel_to(clocked_in_at + 8.days) }
+
+      it "returns false" do
+        expect(sleep_record.visible?).to be false
+      end
+    end
+  end
+
+  describe "background jobs" do
+    let(:user) { create(:user) }
+    let(:sleep_record) { create(:sleep_record, user: user, clocked_in_at: 8.hours.ago) }
+
+    describe "after clock_out events" do
+      it "enqueues correct asynchronous background jobs" do
+        expect(UpdateSelfRecordJob).to receive(:perform_later).with(sleep_record.id)
+        expect(FanOutSleepRecordToFollowersJob).to receive(:perform_later).with(sleep_record.id)
+
+        sleep_record.clock_out!
+      end
     end
   end
 end
