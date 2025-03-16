@@ -73,7 +73,7 @@ RSpec.describe RedisService do
 
   describe ".union_sorted_sets" do
     let(:destination_key) { "union_result" }
-    let(:keys) { ["set1", "set2", "set3"] }
+    let(:keys) { %w[set1 set2 set3] }
 
     context "when keys are present" do
       it "performs ZUNIONSTORE with default sum aggregation" do
@@ -122,9 +122,9 @@ RSpec.describe RedisService do
 
     context "when aggregate type is invalid" do
       it "raises ArgumentError" do
-        expect {
+        expect do
           described_class.union_sorted_sets(destination_key, keys, aggregate: :invalid)
-        }.to raise_error(ArgumentError, "Invalid aggregate type, must be either :sum, :min, or :max")
+        end.to raise_error(ArgumentError, "Invalid aggregate type, must be either :sum, :min, or :max")
       end
     end
   end
@@ -151,8 +151,9 @@ RSpec.describe RedisService do
     it "stores and retrieves hash fields" do
       expect(mock_redis).to receive(:call).with("HSET", "test_hash", "field1", "value1").and_return(1)
       expect(mock_redis).to receive(:call).with("HGET", "test_hash", "field1").and_return("value1")
-      expect(mock_redis).to receive(:call).with("HGETALL",
-                                                "test_hash").and_return(%w[field1 value1 field2 value2])
+      expect(mock_redis).to receive(:call)
+        .with("HGETALL", "test_hash")
+        .and_return({ "field1" => "value1", "field2" => "value2" })
 
       described_class.set_hash_field("test_hash", "field1", "value1")
       expect(described_class.get_hash_field("test_hash", "field1")).to eq("value1")

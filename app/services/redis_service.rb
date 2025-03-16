@@ -72,8 +72,8 @@ class RedisService
                                                                                                 max].exclude?(aggregate)
 
         args = ["ZUNIONSTORE", destination_key, keys.size, *keys]
-        args.concat(["WEIGHTS", *weights]) if weights
-        args.concat(["AGGREGATE", aggregate.to_s.upcase])
+        args.push("WEIGHTS", *weights) if weights
+        args.push("AGGREGATE", aggregate.to_s.upcase)
 
         redis.call(*args)
 
