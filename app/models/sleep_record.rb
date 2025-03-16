@@ -40,5 +40,6 @@ class SleepRecord < ApplicationRecord
 
   def post_clock_out_events
     UpdateSelfRecordJob.perform_later(id)
+    FanOutSleepRecordToFollowersJob.perform_later(id)
   end
 end

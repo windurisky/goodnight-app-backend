@@ -1,4 +1,4 @@
-class FanOutSleepRecordJob < ApplicationJob
+class FanOutSleepRecordToFollowersJob < ApplicationJob
   queue_as :default
 
   def perform(sleep_record_id)
